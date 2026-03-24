@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router";
 import { FIELD_LABELS, VALUE_LABELS, ITEM_CATEGORIES, Meta, REQUIRED_FIELDS_BY_CATEGORY } from "shared/consts";
 import ItemStore from "store/ItemStore";
 import './AdDetail.css'
+import { ArrowLeftOutlined } from '@ant-design/icons'
 import img from 'App/assets/placeholder-image.png'
 import Charateristic from "./components/Characteristic";
 import { routes } from "config/routes";
@@ -52,9 +53,15 @@ const AdDetail = observer(() => {
         <main className="ad-main">
             <div className="ad-detail">
                 <div className="top-container">
-                    <div className="info main-info">
-                        <h2 className="ad-detail-title">{item.title}</h2>
-                        <p className="ad-detail-price">{item.price?.toLocaleString()} ₽</p>
+                    <div className="main-info">
+                        <ArrowLeftOutlined
+                            style={{ fontSize: 20, cursor: "pointer" }}
+                            onClick={() => navigate(-1)} />
+
+                        <div className="info">
+                            <h2 className="ad-detail-title">{item.title}</h2>
+                            <p className="ad-detail-price">{item.price?.toLocaleString()} ₽</p>
+                        </div>
                     </div>
                     <div className="info">
                         <Button type="primary" onClick={() => navigate(routes.edit.create(item.id.toString()))}>

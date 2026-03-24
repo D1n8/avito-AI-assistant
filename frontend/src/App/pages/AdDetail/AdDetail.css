@@ -20,7 +20,13 @@
     border-bottom: 1px solid rgba(240, 240, 240, 1);
 }
 
-.info {
+.main-info {
+    display: flex;
+    gap: 24px;
+}
+
+.info{
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;

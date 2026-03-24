@@ -1,0 +1,14 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root{
+    --color-text: rgba(0, 0, 0, 0.85);
+    --color-subtext: rgba(132, 131, 136, 1);
+    --color-secondary: rgba(0, 0, 0, 0.45);
+    --color-main-bg: rgba(247, 245, 248, 1);
+    --color-accent: rgba(255, 255, 255, 1);
+    --color-yellow: rgba(250, 173, 20, 1);
+}

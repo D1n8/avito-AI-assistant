@@ -1,0 +1,25 @@
+.search-container{
+    display: flex;
+    padding: 12px;
+    gap: 24px;
+    align-items: center;
+    border-radius: 8px;
+    background-color: var(--color-accent);
+}
+
+.input-search-container{
+    width: 100%;
+}
+
+.grid-switch{
+    border-radius: 8px;
+    background-color: var(--color-main-bg);
+}
+
+.switch-icon{
+    padding: 8px;
+}
+
+.enter-btn{
+    background-color: red;
+}

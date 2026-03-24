@@ -1,24 +1,39 @@
-export type Item = {
+import { ITEM_CATEGORIES } from "shared/consts";
+
+export interface BaseItem {
   id: number;
   title: string;
   description?: string;
-  price: number | null;
+  price: number;
   createdAt: string;
   updatedAt: string;
-} & (
-  | {
-      category: 'auto';
-      params: AutoItemParams;
-    }
-  | {
-      category: 'real_estate';
-      params: RealEstateItemParams;
-    }
-  | {
-      category: 'electronics';
-      params: ElectronicsItemParams;
-    }
-);
+}
+
+export interface AutoItem extends BaseItem {
+  category: ITEM_CATEGORIES.AUTO;
+  params: AutoItemParams;
+}
+
+export interface RealEstateItem extends BaseItem {
+  category: ITEM_CATEGORIES.REAL_ESTATE;
+  params: RealEstateItemParams;
+}
+
+export interface ElectronicsItem extends BaseItem {
+  category: ITEM_CATEGORIES.ELECTRONICS;
+  params: ElectronicsItemParams;
+}
+
+export type ItemDetail = AutoItem | RealEstateItem | ElectronicsItem;
+
+export type ItemList = {
+  id: number,
+  category: ITEM_CATEGORIES;
+  title: string;
+  price: number;
+  // Требуются ли доработки
+  needsRevision: boolean;
+}
 
 type AutoItemParams = {
   brand?: string;
@@ -44,6 +59,6 @@ type ElectronicsItemParams = {
   color?: string;
 };
 
-export type ItemSortColumn = Extract<keyof Item, 'title' | 'createdAt'>;
+export type ItemSortColumn = Extract<keyof BaseItem, 'title' | 'createdAt'>;
 
 export type SortDirection = 'asc' | 'desc';

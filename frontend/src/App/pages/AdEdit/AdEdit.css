@@ -1,0 +1,37 @@
+.edit-main {
+    margin: 32px;
+}
+
+.edit-block {
+    padding-block: 18px;
+    border-bottom: 1px solid rgba(240, 240, 240, 1);
+}
+
+.edit-label {
+    font-weight: bold;
+}
+
+.input-container {
+    max-width: 456px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.characters-input:not(:last-child){
+    margin-bottom: 12px;
+}
+
+.edit-descr{
+    border: none
+}
+
+.descr-input-container{
+    max-width: 942px;
+}
+
+.edit-btns-container{
+    margin-top: 16px;
+    display: flex;
+    gap: 10px;
+}

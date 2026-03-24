@@ -1,0 +1,11 @@
+.characteristic {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+}
+
+.character-name {
+    width: 148px;
+    color: rgba(0, 0, 0, 0.45);
+}

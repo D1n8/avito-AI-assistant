@@ -1,10 +1,11 @@
-import type { ItemList } from "store/models/item";
+import type { ItemList, ViewMode } from "store/models/item";
 import { ITEM_CATEGORIES } from "shared/consts";
 import './AdCard.css'
 import PicturePlaceholder from "components/PicturePlaceholder";
 
 interface AdCardProps extends ItemList {
-    onClick: () => void
+    onClick: () => void,
+    viewMode?: ViewMode
 }
 
 const categoryMap = {
@@ -13,9 +14,12 @@ const categoryMap = {
     [ITEM_CATEGORIES.REAL_ESTATE]: 'Недвижимость',
 }
 
-function AdCard(props: AdCardProps) {
+function AdCard({ viewMode, ...props }: AdCardProps) {
+    const isList = viewMode === 'list';
+    const cardClassName = `card ${isList ? 'card-list-view' : 'asd'}`;
+
     return ( 
-        <article className="card" onClick={props.onClick}>
+        <article className={cardClassName} onClick={props.onClick}>
             <div className="card-image-placeholder">
                 <PicturePlaceholder />
             </div>

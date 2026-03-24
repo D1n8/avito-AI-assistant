@@ -30,7 +30,6 @@ export default class ItemEditStore {
     get formData() { return this._formData }
     get aiLoading() { return this._aiLoading }
 
-    // Инициализация: приоритет черновику из localStorage, иначе данные с сервера
     setInitialData(item: ItemDetail) {
         const savedDraft = localStorage.getItem(`draft_${item.id}`);
         if (savedDraft) {
@@ -45,7 +44,6 @@ export default class ItemEditStore {
         this.saveToLocalStorage();
     };
 
-    // Для полей внутри params (brand, model и т.д.)
     updateParam = (key: string, value: any) => {
         if (!this._formData.params) this._formData.params = {};
         this._formData.params = { ...this._formData.params, [key]: value };
@@ -56,11 +54,7 @@ export default class ItemEditStore {
         if (!this._formData.id) return false;
         this._meta = Meta.Loading;
 
-        // 1. Превращаем Proxy в обычный объект и приводим к типу ItemDetail
         const rawData = toJS(this._formData) as ItemDetail;
-
-        // 2. Создаем чистый объект параметров
-        // Используем switch по категории, чтобы TS понял, какие поля доступны
         let cleanParams = { ...rawData.params };
 
         switch (rawData.category) {
@@ -80,16 +74,13 @@ export default class ItemEditStore {
                 };
                 break;
             case ITEM_CATEGORIES.ELECTRONICS:
-                // В электронике из твоего item.ts все поля — строки, 
-                // так что просто оставляем как есть
                 cleanParams = { ...rawData.params };
                 break;
         }
 
-        // 3. Формируем итоговый объект для отправки
         const payload = {
             title: rawData.title,
-            price: Number(rawData.price), // Цена обязательна и должна быть числом
+            price: Number(rawData.price),
             description: rawData.description || '',
             category: rawData.category,
             params: cleanParams
@@ -124,7 +115,7 @@ export default class ItemEditStore {
                          Ответь только текстом нового описания.`,
                 stream: false
             });
-            // Не обновляем сразу, а возвращаем, чтобы пользователь мог нажать "Применить"
+
             return res.data.response;
         } finally {
             runInAction(() => this._aiLoading = false);
@@ -141,7 +132,7 @@ export default class ItemEditStore {
                          Ответь только одним числом.`,
                 stream: false
             });
-            return parseInt(res.data.response.replace(/\D/g, '')); // Извлекаем только цифры
+            return parseInt(res.data.response.replace(/\D/g, ''));
         } finally {
             runInAction(() => { this._aiLoading = false; });
         }

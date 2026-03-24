@@ -56,7 +56,7 @@ const AdDetail = observer(() => {
                     <div className="main-info">
                         <ArrowLeftOutlined
                             style={{ fontSize: 20, cursor: "pointer" }}
-                            onClick={() => navigate(-1)} />
+                            onClick={() => navigate(routes.list.mask)} />
 
                         <div className="info">
                             <h2 className="ad-detail-title">{item.title}</h2>

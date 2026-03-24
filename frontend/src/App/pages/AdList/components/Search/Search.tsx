@@ -2,7 +2,7 @@ import { Dropdown, Input, type MenuProps, Button, Space } from 'antd'
 import { AppstoreOutlined, UnorderedListOutlined, DownOutlined, SortAscendingOutlined } from '@ant-design/icons'
 import './Search.css'
 import { observer } from 'mobx-react-lite'
-import { useStore } from 'store/RootStore/RootStore' 
+import { useStore } from 'store/RootStore/RootStore'
 import type { ItemSortColumn, SortDirection } from 'store/models/item'
 import SearchIcon from 'components/Icons/SearchIcon'
 
@@ -61,27 +61,41 @@ const Search = observer(() => {
         <div className='search-container'>
             <div className='input-search-container'>
                 <Input.Search
-                    className='input-search' 
-                    placeholder='Найти объявление...' 
-                    enterButton={<Button style={{backgroundColor: 'rgba(247, 245, 248, 1)', border: 'transparent'}}><SearchIcon/></Button>}
+                    className='input-search'
+                    placeholder='Найти объявление...'
+                    enterButton={<Button style={{ backgroundColor: 'rgba(247, 245, 248, 1)', border: 'transparent' }}><SearchIcon /></Button>}
                     onSearch={(value) => itemListStore.setSearchQuery(value)}
                 />
             </div>
 
             <div className='grid-switch'>
                 <Space size={12}>
-                    <AppstoreOutlined className='switch-icon' />
-                    <UnorderedListOutlined className='switch-icon'/>
+                    <AppstoreOutlined
+                        className='switch-icon'
+                        style={{
+                            cursor: 'pointer',
+                            color: itemListStore.viewMode === 'grid' ? 'var(--ant-color-primary, #1890ff)' : 'inherit'
+                        }}
+                        onClick={() => itemListStore.setViewMode('grid')}
+                    />
+                    <UnorderedListOutlined
+                        className='switch-icon'
+                        style={{
+                            cursor: 'pointer',
+                            color: itemListStore.viewMode === 'list' ? 'var(--ant-color-primary, #1890ff)' : 'inherit'
+                        }}
+                        onClick={() => itemListStore.setViewMode('list')}
+                    />
                 </Space>
             </div>
 
-            <Dropdown 
-                menu={{ 
-                    items, 
+            <Dropdown
+                menu={{
+                    items,
                     onClick: handleMenuClick,
                     selectable: true,
                     defaultSelectedKeys: [`${itemListStore.sortColumn}-${itemListStore.sortDirection}`]
-                }} 
+                }}
                 trigger={['click']}
             >
                 <Button>

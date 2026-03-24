@@ -63,3 +63,5 @@ type ElectronicsItemParams = {
 export type ItemSortColumn = Extract<keyof BaseItem, 'title' | 'createdAt'>;
 
 export type SortDirection = 'asc' | 'desc';
+
+export type ViewMode = 'grid' | 'list'

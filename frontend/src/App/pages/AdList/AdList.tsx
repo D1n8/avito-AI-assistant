@@ -25,12 +25,18 @@ const AdList = observer(() => {
     }, [navigate])
 
     const renderContent = () => {
-        if (itemListStore.meta === Meta.Loading) {
+        const listClassName = itemListStore.viewMode === 'grid' ? 'list' : 'list-view';
+
+        if (itemListStore.meta === Meta.Loading ) {
             return (
-                <section className='list'>
-                    {Array.from({ length: 10 }).map((_, index) => (
+                <section className={listClassName}>
+                    {Array.from({ length: itemListStore.limit }).map((_, index) => (
                         <div key={index} className="card-skeleton">
-                            <Skeleton.Button active style={{ height: 260, width: 200 }} />
+                            <Skeleton.Button active
+                                style={{
+                                    height: itemListStore.viewMode === 'grid' ? 260 : 130,
+                                    width: itemListStore.viewMode === 'grid' ? 200 : '100%'
+                                }} />
                         </div>
                     ))}
                 </section>
@@ -46,7 +52,7 @@ const AdList = observer(() => {
         }
 
         return (
-            <section className='list'>
+            <section className={listClassName}>
                 {itemListStore.list.map(item => (
                     <AdCard
                         key={item.id}
@@ -56,12 +62,13 @@ const AdList = observer(() => {
                         price={item.price}
                         category={item.category}
                         needsRevision={item.needsRevision}
+                        viewMode={itemListStore.viewMode}
                     />
                 ))}
             </section>
         )
     }
-    
+
     return (
         <main className='list-main'>
             <h2 className='listPage-title'>Мои объявления</h2>
@@ -77,7 +84,7 @@ const AdList = observer(() => {
                         <Pagination
                             current={itemListStore.currentPage}
                             total={itemListStore.total}
-                            pageSize={10}
+                            pageSize={itemListStore.limit}
                             onChange={(page) => itemListStore.setPage(page)}
                             showSizeChanger={false}
                         />

@@ -2,9 +2,9 @@ import { BASE_URL } from "App/consts";
 import axios from "axios";
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 import { Meta } from "shared/consts";
-import type { ItemList, ItemSortColumn, SortDirection } from "store/models/item";
+import type { ItemList, ItemSortColumn, SortDirection, ViewMode } from "store/models/item";
 
-type PrivateFields = '_list' | '_meta' | '_total' | '_sortColumn' | '_sortDirection' | '_q' | '_categories' | '_needsRevision' | '_limit' | '_skip'
+type PrivateFields = '_list' | '_meta' | '_total' | '_sortColumn' | '_sortDirection' | '_q' | '_categories' | '_needsRevision' | '_limit' | '_skip' | '_viewMode'
 
 export default class ItemListStore {
     private _list: ItemList[] = []
@@ -17,6 +17,7 @@ export default class ItemListStore {
     private _needsRevision: boolean = false
     private _limit = 10
     private _skip = 0
+    private _viewMode: ViewMode = 'grid'
 
     constructor() {
         makeObservable<ItemListStore, PrivateFields>(this, {
@@ -30,6 +31,7 @@ export default class ItemListStore {
             _needsRevision: observable,
             _limit: observable,
             _skip: observable,
+            _viewMode: observable,
             list: computed,
             meta: computed,
             total: computed,
@@ -37,9 +39,12 @@ export default class ItemListStore {
             sortDirection: computed,
             categories: computed,
             needsRevision: computed,
+            viewMode: computed,
+            limit: computed,
             setPage: action,
             setSearchQuery: action,
             setSorting: action,
+            setViewMode: action,
             fetchItemList: action
         })
     }
@@ -51,6 +56,8 @@ export default class ItemListStore {
     get sortDirection() { return this._sortDirection }
     get categories() { return this._categories }
     get needsRevision() { return this._needsRevision }
+    get viewMode(): ViewMode { return this._viewMode }
+    get limit() { return this._limit }
 
     get currentPage() {
         return Math.floor(this._skip / this._limit) + 1
@@ -69,6 +76,16 @@ export default class ItemListStore {
     setSorting(column: ItemSortColumn, direction: SortDirection) {
         this._sortColumn = column
         this._sortDirection = direction
+        this.fetchItemList()
+    }
+
+    setViewMode(mode: ViewMode) {
+        if (this._viewMode === mode) return
+        
+        this._viewMode = mode
+        this._limit = mode === 'grid' ? 10 : 4
+        this._skip = 0
+        
         this.fetchItemList()
     }
 

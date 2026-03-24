@@ -131,6 +131,38 @@ export default class ItemEditStore {
         }
     }
 
+    async getMarketPrice() {
+        this._aiLoading = true;
+        try {
+            const res = await axios.post('http://localhost:11434/api/generate', {
+                model: 'llama3',
+                prompt: `Назови только число (рыночную цену в рублях) для товара: ${this._formData.title}. 
+                         Характеристики: ${JSON.stringify(this._formData.params)}. 
+                         Ответь только одним числом.`,
+                stream: false
+            });
+            return parseInt(res.data.response.replace(/\D/g, '')); // Извлекаем только цифры
+        } finally {
+            runInAction(() => { this._aiLoading = false; });
+        }
+    }
+
+    async generateDescription() {
+        this._aiLoading = true;
+        try {
+            const res = await axios.post('http://localhost:11434/api/generate', {
+                model: 'llama3',
+                prompt: `Напиши продающее описание для Авито. Товар: ${this._formData.title}. 
+                         Характеристики: ${JSON.stringify(this._formData.params)}. 
+                         Текст должен быть на русском языке.`,
+                stream: false
+            });
+            return res.data.response;
+        } finally {
+            runInAction(() => { this._aiLoading = false; });
+        }
+    }
+
     private saveToLocalStorage() {
         localStorage.setItem(`draft_${this._formData.id}`, JSON.stringify(this._formData));
     }

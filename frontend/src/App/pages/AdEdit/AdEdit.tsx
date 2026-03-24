@@ -1,22 +1,31 @@
-import { Button, Input, message, Skeleton } from 'antd';
-import './AdEdit.css'
-import { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router';
-import { ITEM_CATEGORIES, Meta } from 'shared/consts';
+import { Button, Input, Select, App, Skeleton, Typography } from 'antd';
 import { observer } from 'mobx-react-lite';
-import Clear from 'components/Icons/Clear';
-import TextArea from 'antd/es/input/TextArea';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
 import { useStore } from 'store/RootStore/RootStore';
+import { CATEGORY_LABELS, FIELD_LABELS, ITEM_CATEGORIES, Meta, VALUE_LABELS } from 'shared/consts';
+import Clear from 'components/Icons/Clear';
+import { BulbOutlined, CheckOutlined } from '@ant-design/icons';
+import './AdEdit.css';
+import CharInput from './components/CharInput';
+import CharSelect from './components/CharSelect';
+
+const { TextArea } = Input;
+const { Text } = Typography;
 
 const AdEdit = observer(() => {
     const { itemStore, itemEditStore } = useStore()
     const { id } = useParams()
     const navigate = useNavigate()
+    const { message } = App.useApp()
+
+    const [touched, setTouched] = useState<Record<string, boolean>>({})
+    const [aiDescription, setAiDescription] = useState<string | null>(null)
+    const [aiPrice, setAiPrice] = useState<number | null>(null)
 
     useEffect(() => {
-        if (id)
-            itemStore.fetchItemDetail(id)
-    }, [itemStore, id])
+        if (id) itemStore.fetchItemDetail(id)
+    }, [id, itemStore])
 
     useEffect(() => {
         if (itemStore.meta === Meta.Success && itemStore.item) {
@@ -30,208 +39,166 @@ const AdEdit = observer(() => {
             message.success('Объявление сохранено')
             navigate(`/ads/${id}`)
         } else {
-            message.error('Ошибка при сохранении')
+            message.error('Ошибка сохранения')
         }
     }
 
-    // const handleAiImprove = async () => {
-    //     const newDescription = await itemEditStore.improveDescription()
-    //     if (newDescription) {
-    //         itemEditStore.updateField('description', newDescription)
-    //     }
-    // }
+    const getStatus = (value: any, mandatory: boolean, name: string) => {
+        if (mandatory && !value && touched[name]) return 'error'
+        if (!mandatory && !value) return 'warning'
+        return undefined
+    }
 
-    if (itemStore.meta === Meta.Loading) return <Skeleton active />
+    const onGetAiPrice = async () => {
+        const price = await itemEditStore.getMarketPrice()
+        if (price) setAiPrice(price)
+    }
+
+    const onGenerateAiDescription = async () => {
+        const desc = await itemEditStore.generateDescription()
+        if (desc) setAiDescription(desc)
+    }
+
+    if (itemStore.meta === Meta.Loading || !itemEditStore.formData.id) return <Skeleton active />
 
     const { formData } = itemEditStore
+    const isSaveDisabled = !formData.title || !formData.price || formData.price <= 0
 
     return (
         <main className="edit-main">
             <h2>Редактирование объявления</h2>
 
-            <div className='edit-category'>
-
+            <div className='edit-block'>
+                <div className="input-container">
+                    <label className='edit-label mandatory'>{FIELD_LABELS.category}</label>
+                    <Select
+                        className="full-width"
+                        style={{ width: 456 }}
+                        value={formData.category}
+                        onChange={(val) => itemEditStore.updateField('category', val)}
+                        options={Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label }))}
+                    />
+                </div>
             </div>
 
-            <div className='edit-block edit-title'>
+            <div className='edit-block'>
                 <div className="input-container">
-                    <label className='edit-label' htmlFor="title">Название</label>
+                    <label className='edit-label mandatory'>Название</label>
                     <Input
-                        name='title'
-                        value={formData.title || ''}
+                        status={getStatus(formData.title, true, 'title')}
+                        style={{ width: 456 }}
+                        value={formData.title}
                         onChange={(e) => itemEditStore.updateField('title', e.target.value)}
-                        placeholder={formData.title}
-                        allowClear={{ clearIcon: <Clear /> }} />
+                        onBlur={() => setTouched(p => ({ ...p, title: true }))}
+                        allowClear={{ clearIcon: <Clear /> }}
+                    />
+                    {!formData.title && touched.title && <Text type="danger">Обязательное поле</Text>}
                 </div>
             </div>
 
-            <div className="edit-block edit-price">
+            <div className="edit-block">
                 <div className="input-container">
-                    <label className='edit-label' htmlFor="price">Цена</label>
-                    <Input
-                        name='price'
-                        type="number"
-                        value={formData.price}
-                        onChange={(e) => itemEditStore.updateField('price', Number(e.target.value))}
-                        placeholder='Цена' allowClear={{ clearIcon: <Clear /> }} />
+                    <label className='edit-label mandatory'>Цена</label>
+                    <div className="price-container">
+                        <Input
+                            type="number"
+                            style={{ width: 456 }}
+                            status={getStatus(formData.price, true, 'price')}
+                            value={formData.price}
+                            onChange={(e) => itemEditStore.updateField('price', Number(e.target.value))}
+                            onBlur={() => setTouched(p => ({ ...p, price: true }))}
+                            allowClear={{ clearIcon: <Clear /> }}
+                        />
+                        <Button
+                            className="ai-btn-secondary"
+                            icon={<BulbOutlined />}
+                            onClick={onGetAiPrice}>
+                            Узнать рыночную цену
+                        </Button>
+                    </div>
+
+
+                    {aiPrice && (
+                        <div className="ai-suggestion">
+                            AI рекомендует: <b>{aiPrice} ₽</b>
+                            <Button
+                                type="link"
+                                size="small"
+                                onClick={() => { itemEditStore.updateField('price', aiPrice); setAiPrice(null); }}
+                            >Применить</Button>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            <div className="edit-block input-container">
-                <label className='edit-label' htmlFor="edit-charaters-container">Характеристики</label>
-                <div className='edit-charaters-container' id='edit-charaters-container'>
-                    {
-                        formData.category == ITEM_CATEGORIES.AUTO &&
-                        <>
-                            <div className="input-container characters-input">
-                                <label htmlFor="brand">Бренд</label>
-                                <Input name='brand'
-                                    value={formData.params?.brand}
-                                    onChange={(e) => itemEditStore.updateParam('brand', e.target.value)}
-                                    placeholder='Бренд'
-                                    allowClear={{ clearIcon: <Clear /> }} />
-                            </div>
-                            <div className="input-container characters-input">
-                                <label htmlFor="model">Модель</label>
-                                <Input name='model'
-                                    value={formData.params?.model}
-                                    onChange={(e) => itemEditStore.updateParam('model', e.target.value)}
-                                    placeholder='Модель'
-                                    allowClear={{ clearIcon: <Clear /> }} />
-                            </div>
-                            <div className="input-container characters-input">
-                                <label htmlFor="year">Год изготовления</label>
-                                <Input name='year'
-                                    value={formData.params?.yearOfManufacture}
-                                    onChange={(e) => itemEditStore.updateParam('yearOfManufacture', e.target.value)}
-                                    placeholder='Год изготовления'
-                                    allowClear={{ clearIcon: <Clear /> }} />
-                            </div>
-                            <div className="input-container characters-input">
-                                <label htmlFor="transmission">Трансмиссия</label>
-                                <Input name='transmission'
-                                    value={formData.params?.transmission}
-                                    onChange={(e) => itemEditStore.updateParam('transmission', e.target.value)}
-                                    placeholder='Трансмиссия'
-                                    allowClear={{ clearIcon: <Clear /> }} />
-                            </div>
-                            <div className="input-container characters-input">
-                                <label htmlFor="mileage">Пробег</label>
-                                <Input name='mileage'
-                                    value={formData.params?.mileage}
-                                    onChange={(e) => itemEditStore.updateParam('mileage', e.target.value)}
-                                    placeholder='Пробег'
-                                    allowClear={{ clearIcon: <Clear /> }} />
-                            </div>
-                            <div className="input-container characters-input">
-                                <label htmlFor="enginePower">Мощность</label>
-                                <Input name='enginePower'
-                                    value={formData.params?.enginePower}
-                                    onChange={(e) => itemEditStore.updateParam('enginePower', e.target.value)}
-                                    placeholder='Мощность'
-                                    allowClear={{ clearIcon: <Clear /> }} />
-                            </div>
-                        </>
-                    }
+            <div className="edit-block">
+                <label className='edit-label'>Характеристики</label>
+                <div className='edit-charaters-container'>
 
-                    {
-                        formData.category == ITEM_CATEGORIES.ELECTRONICS &&
-                        <>
-                            <div className="input-container characters-input">
-                                <label htmlFor="type">Тип</label>
-                                <Input name='type'
-                                    value={formData.params?.type}
-                                    onChange={(e) => itemEditStore.updateParam('type', e.target.value)}
-                                    placeholder='Тип'
-                                    allowClear={{ clearIcon: <Clear /> }} />
-                            </div>
-                            <div className="input-container characters-input">
-                                <label htmlFor="brand">Бренд</label>
-                                <Input name='brand'
-                                    value={formData.params?.brand}
-                                    onChange={(e) => itemEditStore.updateParam('brand', e.target.value)}
-                                    placeholder='Бренд'
-                                    allowClear={{ clearIcon: <Clear /> }} />
-                            </div>
-                            <div className="input-container characters-input">
-                                <label htmlFor="model">Модель</label>
-                                <Input name='model'
-                                    value={formData.params?.model}
-                                    onChange={(e) => itemEditStore.updateParam('model', e.target.value)}
-                                    placeholder='Модель'
-                                    allowClear={{ clearIcon: <Clear /> }} />
-                            </div>
+                    {formData.category === ITEM_CATEGORIES.AUTO && (
+                        <div className="char-grid">
+                            <CharInput name="brand" store={itemEditStore} />
+                            <CharInput name="model" store={itemEditStore} />
+                            <CharInput name="yearOfManufacture" store={itemEditStore} type="number" />
+                            <CharSelect name="transmission" store={itemEditStore} optionsMap={VALUE_LABELS.transmission} />
+                            <CharInput name="mileage" store={itemEditStore} type="number" />
+                            <CharInput name="enginePower" store={itemEditStore} type="number" />
+                        </div>
+                    )}
 
-                            <div className="input-container characters-input">
-                                <label htmlFor="condition">Состояние</label>
-                                <Input name='condition'
-                                    value={formData.params?.condition}
-                                    onChange={(e) => itemEditStore.updateParam('condition', e.target.value)}
-                                    placeholder='Состояние'
-                                    allowClear={{ clearIcon: <Clear /> }} />
-                            </div>
-                            <div className="input-container characters-input">
-                                <label htmlFor="color">Цвет</label>
-                                <Input name='color'
-                                    value={formData.params?.color}
-                                    onChange={(e) => itemEditStore.updateParam('color', e.target.value)}
-                                    placeholder='Цвет'
-                                    allowClear={{ clearIcon: <Clear /> }} />
-                            </div>
-                        </>
-                    }
+                    {formData.category === ITEM_CATEGORIES.ELECTRONICS && (
+                        <div className="char-grid">
+                            <CharSelect name="type" store={itemEditStore} optionsMap={VALUE_LABELS.electronicsType} />
+                            <CharInput name="brand" store={itemEditStore} />
+                            <CharInput name="model" store={itemEditStore} />
+                            <CharSelect name="condition" store={itemEditStore} optionsMap={VALUE_LABELS.condition} />
+                            <CharInput name="color" store={itemEditStore} />
+                        </div>
+                    )}
 
-                    {
-                        formData.category == ITEM_CATEGORIES.REAL_ESTATE &&
-                        <>
-                            <div className="input-container characters-input">
-                                <label htmlFor="type">Тип</label>
-                                <Input name='type'
-                                    value={formData.params?.type}
-                                    onChange={(e) => itemEditStore.updateParam('type', e.target.value)}
-                                    placeholder='Тип'
-                                    allowClear={{ clearIcon: <Clear /> }} />
-                            </div>
-                            <div className="input-container characters-input">
-                                <label htmlFor="address">Адрес</label>
-                                <Input name='address'
-                                    value={formData.params?.address}
-                                    onChange={(e) => itemEditStore.updateParam('address', e.target.value)}
-                                    placeholder='Адрес'
-                                    allowClear={{ clearIcon: <Clear /> }} />
-                            </div>
-                            <div className="input-container characters-input">
-                                <label htmlFor="area">Площадь</label>
-                                <Input name='area'
-                                    value={formData.params?.area}
-                                    onChange={(e) => itemEditStore.updateParam('area', e.target.value)}
-                                    placeholder='Площадь'
-                                    allowClear={{ clearIcon: <Clear /> }} />
-                            </div>
-
-                            <div className="input-container characters-input">
-                                <label htmlFor="floor">Этаж</label>
-                                <Input name='floor'
-                                    value={formData.params?.floor}
-                                    onChange={(e) => itemEditStore.updateParam('floor', e.target.value)}
-                                    placeholder='Этаж'
-                                    allowClear={{ clearIcon: <Clear /> }} />
-                            </div>
-                        </>
-                    }
-
+                    {formData.category === ITEM_CATEGORIES.REAL_ESTATE && (
+                        <div className="char-grid">
+                            <CharSelect name="type" store={itemEditStore} optionsMap={VALUE_LABELS.realEstateType} />
+                            <CharInput name="address" store={itemEditStore} />
+                            <CharInput name="area" store={itemEditStore} type="number" />
+                            <CharInput name="floor" store={itemEditStore} type="number" />
+                        </div>
+                    )}
                 </div>
             </div>
 
-            <div className="edit-block edit-descr">
+            <div className="edit-block no-border">
                 <div className="input-container descr-input-container">
-                    <label className='edit-label' htmlFor="descr">Описание</label>
-                    <TextArea name='descr'
+                    <label className='edit-label'>Описание</label>
+                    <TextArea
+                        status={getStatus(formData.description, false, 'description')}
                         value={formData.description}
                         onChange={(e) => itemEditStore.updateField('description', e.target.value)}
-                        placeholder='Описание'
                         showCount
-                        rows={6} />
+                        maxLength={1000}
+                        rows={4}
+                    />
+                    <Button
+                        className="ai-btn-text"
+                        type="text"
+                        icon={<BulbOutlined />}
+                        onClick={onGenerateAiDescription}
+                        loading={itemEditStore.aiLoading}
+                    >
+                        Улучшить описание
+                    </Button>
+                    {aiDescription && (
+                        <div className="ai-suggestion-box">
+                            <p>{aiDescription}</p>
+                            <Button
+                                type="primary"
+                                size="small"
+                                icon={<CheckOutlined />}
+                                onClick={() => { itemEditStore.updateField('description', aiDescription); setAiDescription(null); }}>
+                                Применить
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -239,11 +206,14 @@ const AdEdit = observer(() => {
                 <Button
                     type='primary'
                     onClick={handleSave}
-                    loading={itemEditStore.meta === Meta.Loading}>Сохранить</Button>
+                    disabled={isSaveDisabled}
+                    loading={itemEditStore.meta === Meta.Loading}>
+                    Сохранить
+                </Button>
                 <Button onClick={() => navigate(-1)}>Отменить</Button>
             </div>
         </main>
-    )
-})
+    );
+});
 
 export default AdEdit;

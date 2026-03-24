@@ -59,3 +59,17 @@
 .ad-detail-descr{
     max-width: 480px;
 }
+
+.ad-detail-title {
+    font-size: 30px;
+    font-weight: 500;
+}
+
+.ad-detail-price {
+    font-size: 30px;
+    font-weight: 500;
+}
+
+.no-descr {
+    color: var(--color-subtext);
+}

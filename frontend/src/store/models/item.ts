@@ -7,6 +7,7 @@ export interface BaseItem {
   price: number;
   createdAt: string;
   updatedAt: string;
+  needsRevision: boolean;
 }
 
 export interface AutoItem extends BaseItem {

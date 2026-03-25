@@ -86,8 +86,6 @@ export default class ItemEditStore {
             params: cleanParams
         };
 
-        console.log("Payload to server:", payload);
-
         try {
             await axios.put(`${BASE_URL}/items/${rawData.id}`, payload);
             runInAction(() => {
@@ -112,7 +110,8 @@ export default class ItemEditStore {
                 prompt: `Напиши привлекательное описание для объявления на Авито. 
                          Товар: ${this._formData.title}. 
                          Текущее описание: ${this._formData.description || 'отсутствует'}.
-                         Ответь только текстом нового описания.`,
+                         Максимальное количество символов в ответе - 1000.
+                         Ответь только текстом (не markdown) нового описания.`,
                 stream: false
             });
 
@@ -129,7 +128,7 @@ export default class ItemEditStore {
                 model: 'llama3',
                 prompt: `Назови только число (рыночную цену в рублях) для товара: ${this._formData.title}. 
                          Характеристики: ${JSON.stringify(this._formData.params)}. 
-                         Ответь только одним числом.`,
+                         Ответь в только числом."`,
                 stream: false
             });
             return parseInt(res.data.response.replace(/\D/g, ''));

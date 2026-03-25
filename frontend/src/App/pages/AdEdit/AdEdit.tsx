@@ -5,13 +5,15 @@ import { useNavigate, useParams } from 'react-router';
 import { useStore } from 'store/RootStore/RootStore';
 import { CATEGORY_LABELS, FIELD_LABELS, ITEM_CATEGORIES, Meta, VALUE_LABELS } from 'shared/consts';
 import Clear from 'components/Icons/Clear';
-import { BulbOutlined, CheckOutlined } from '@ant-design/icons';
+import { BulbOutlined, LoadingOutlined, SyncOutlined } from '@ant-design/icons';
 import './AdEdit.css';
 import CharInput from './components/CharInput';
 import CharSelect from './components/CharSelect';
+import BubbleModal from './components/BubbleModal';
+import type { AiStatus } from 'shared/types';
 
-const { TextArea } = Input;
-const { Text } = Typography;
+const { TextArea } = Input
+const { Text } = Typography
 
 const AdEdit = observer(() => {
     const { itemStore, itemEditStore } = useStore()
@@ -20,8 +22,12 @@ const AdEdit = observer(() => {
     const { message } = App.useApp()
 
     const [touched, setTouched] = useState<Record<string, boolean>>({})
-    const [aiDescription, setAiDescription] = useState<string | null>(null)
-    const [aiPrice, setAiPrice] = useState<number | null>(null)
+
+    const [priceAiStatus, setPriceAiStatus] = useState<AiStatus>('idle')
+    const [aiPriceText, setAiPriceText] = useState<string | null>(null)
+
+    const [descAiStatus, setDescAiStatus] = useState<AiStatus>('idle')
+    const [aiDescText, setAiDescText] = useState<string | null>(null)
 
     useEffect(() => {
         if (id) itemStore.fetchItemDetail(id)
@@ -50,14 +56,42 @@ const AdEdit = observer(() => {
     }
 
     const onGetAiPrice = async () => {
-        const price = await itemEditStore.getMarketPrice()
-        if (price) setAiPrice(price)
+        setPriceAiStatus('loading');
+        try {
+            const result = await itemEditStore.getMarketPrice()
+            if (result) {
+                setAiPriceText(String(result));
+                setPriceAiStatus('success');
+            } else {
+                setPriceAiStatus('error');
+            }
+        } catch {
+            setPriceAiStatus('error');
+        }
+    };
+
+    const applyAiPrice = () => {
+        if (aiPriceText) {
+            const price = parseInt(aiPriceText.replace(/\s/g, '').match(/\d+/)?.[0] || '0');
+            itemEditStore.updateField('price', price);
+            setPriceAiStatus('idle');
+        }
     }
 
-    const onGenerateAiDescription = async () => {
-        const desc = await itemEditStore.generateDescription()
-        if (desc) setAiDescription(desc)
-    }
+    const onGetAiDescription = async () => {
+        setDescAiStatus('loading');
+        try {
+            const result = await itemEditStore.generateDescription();
+            if (result) {
+                setAiDescText(result);
+                setDescAiStatus('success');
+            } else {
+                setDescAiStatus('error');
+            }
+        } catch {
+            setDescAiStatus('error');
+        }
+    };
 
     if (itemStore.meta === Meta.Loading || !itemEditStore.formData.id) return <Skeleton active />
 
@@ -103,31 +137,28 @@ const AdEdit = observer(() => {
                         <Input
                             type="number"
                             style={{ width: 456 }}
-                            status={getStatus(formData.price, true, 'price')}
                             value={formData.price}
                             onChange={(e) => itemEditStore.updateField('price', Number(e.target.value))}
-                            onBlur={() => setTouched(p => ({ ...p, price: true }))}
                             allowClear={{ clearIcon: <Clear /> }}
                         />
-                        <Button
-                            className="ai-btn-secondary"
-                            icon={<BulbOutlined />}
-                            onClick={onGetAiPrice}>
-                            Узнать рыночную цену
-                        </Button>
-                    </div>
-
-
-                    {aiPrice && (
-                        <div className="ai-suggestion">
-                            AI рекомендует: <b>{aiPrice} ₽</b>
+                        <div className="ai-wrapper">
                             <Button
-                                type="link"
-                                size="small"
-                                onClick={() => { itemEditStore.updateField('price', aiPrice); setAiPrice(null); }}
-                            >Применить</Button>
+                                className={priceAiStatus === 'idle' ? "ai-btn-secondary" : "ai-btn-active"}
+                                icon={priceAiStatus === 'loading' ? <LoadingOutlined /> : (priceAiStatus === 'idle' ? <BulbOutlined /> : <SyncOutlined />)}
+                                onClick={onGetAiPrice}
+                                loading={priceAiStatus === 'loading'}
+                            >
+                                {priceAiStatus === 'idle' ? 'Узнать рыночную цену' :
+                                    priceAiStatus === 'loading' ? 'Выполняется запрос' : 'Повторить запрос'}
+                            </Button>
+
+                            <BubbleModal
+                                text={aiPriceText}
+                                onApply={applyAiPrice}
+                                onClose={() => setPriceAiStatus('idle')}
+                                status={priceAiStatus} />
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
 
@@ -171,34 +202,31 @@ const AdEdit = observer(() => {
                 <div className="input-container descr-input-container">
                     <label className='edit-label'>Описание</label>
                     <TextArea
-                        status={getStatus(formData.description, false, 'description')}
                         value={formData.description}
                         onChange={(e) => itemEditStore.updateField('description', e.target.value)}
                         showCount
                         maxLength={1000}
                         rows={4}
                     />
-                    <Button
-                        className="ai-btn-text"
-                        type="text"
-                        icon={<BulbOutlined />}
-                        onClick={onGenerateAiDescription}
-                        loading={itemEditStore.aiLoading}
-                    >
-                        Улучшить описание
-                    </Button>
-                    {aiDescription && (
-                        <div className="ai-suggestion-box">
-                            <p>{aiDescription}</p>
-                            <Button
-                                type="primary"
-                                size="small"
-                                icon={<CheckOutlined />}
-                                onClick={() => { itemEditStore.updateField('description', aiDescription); setAiDescription(null); }}>
-                                Применить
-                            </Button>
-                        </div>
-                    )}
+
+                    <div className="ai-wrapper" style={{ marginTop: 12 }}>
+                        <Button
+                            className={descAiStatus === 'idle' ? "ai-btn-text" : "ai-btn-active"}
+                            icon={descAiStatus === 'loading' ? <LoadingOutlined /> : (descAiStatus === 'idle' ? <BulbOutlined /> : <SyncOutlined />)}
+                            onClick={onGetAiDescription}
+                        >
+                            {descAiStatus === 'loading' ? 'Выполняется запрос' :
+                                descAiStatus !== 'idle' ? 'Повторить запрос' :
+                                    (formData.description ? 'Улучшить описание' : 'Придумать описание')}
+                        </Button>
+
+                        <BubbleModal
+                            text={aiDescText}
+                            onApply={() => { itemEditStore.updateField('description', aiDescText!); setDescAiStatus('idle'); }}
+                            onClose={() => setDescAiStatus('idle')}
+                            status={descAiStatus} />
+
+                    </div>
                 </div>
             </div>
 

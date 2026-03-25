@@ -28,7 +28,7 @@
 .revision-content p {
     margin-bottom: 4px;
     font-size: 14px;
-    color: var(--color-text);
+    color: rgba(0, 0, 0, 0.85);
 }
 
 .revision-content ul {
@@ -38,6 +38,6 @@
 
 .revision-content li {
     font-size: 14px;
-    color: var(--color-text);
+    color: rgba(0, 0, 0, 0.85);
     margin-bottom: 4px;
 }

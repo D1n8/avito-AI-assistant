@@ -14,6 +14,12 @@
     margin-bottom: 28px;
 }
 
+.list-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
 .list-layout {
     margin-top: 24px;
     display: flex;

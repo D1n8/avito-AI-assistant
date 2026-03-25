@@ -7,7 +7,7 @@
 }
 
 .filters-card {
-    background: #fff;
+    background: var(--color-default);
     border-radius: 12px;
     padding: 20px 16px;
 }
@@ -57,7 +57,7 @@
 
 .reset-button {
     height: 40px;
-    background: #fff;
+    background: var(--color-default);
     border: none;
     border-radius: 8px;
     font-size: 14px;

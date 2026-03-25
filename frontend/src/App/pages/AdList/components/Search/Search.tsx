@@ -63,7 +63,7 @@ const Search = observer(() => {
                 <Input.Search
                     className='input-search'
                     placeholder='Найти объявление...'
-                    enterButton={<Button style={{ backgroundColor: 'rgba(247, 245, 248, 1)', border: 'transparent' }}><SearchIcon /></Button>}
+                    enterButton={<Button style={{ backgroundColor: 'var(--color-bg-btn)', border: 'transparent' }}><SearchIcon /></Button>}
                     onSearch={(value) => itemListStore.setSearchQuery(value)}
                 />
             </div>

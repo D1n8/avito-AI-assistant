@@ -1,5 +1,5 @@
 import './AdList.css'
-import { Pagination, Skeleton, Empty } from 'antd';
+import { Pagination, Skeleton, Empty, Space, Switch } from 'antd';
 import { useCallback, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import AdCard from './components/AdCard';
@@ -9,9 +9,10 @@ import { routes } from 'config/routes';
 import { useStore } from 'store/RootStore/RootStore';
 import Filters from './components/Filters';
 import { Meta } from 'shared/consts';
+import { SunOutlined, MoonOutlined } from '@ant-design/icons'
 
 const AdList = observer(() => {
-    const { itemListStore } = useStore()
+    const { itemListStore, themeStore } = useStore()
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -27,7 +28,7 @@ const AdList = observer(() => {
     const renderContent = () => {
         const listClassName = itemListStore.viewMode === 'grid' ? 'list' : 'list-view';
 
-        if (itemListStore.meta === Meta.Loading ) {
+        if (itemListStore.meta === Meta.Loading) {
             return (
                 <section className={listClassName}>
                     {Array.from({ length: itemListStore.limit }).map((_, index) => (
@@ -71,8 +72,24 @@ const AdList = observer(() => {
 
     return (
         <main className='list-main'>
-            <h2 className='listPage-title'>Мои объявления</h2>
-            <p className='listPage-subtitle'>{itemListStore.total} объявления</p>
+            <div className="list-header-row">
+                <div>
+                    <h2 className='listPage-title'>Мои объявления</h2>
+                    <p className='listPage-subtitle'>{itemListStore.total} объявления</p>
+                </div>
+
+                <div className="theme-switcher">
+                    <Space>
+                        {themeStore.theme === 'light' ? <SunOutlined /> : <MoonOutlined />}
+                        <Switch
+                            checked={themeStore.theme === 'dark'}
+                            onChange={themeStore.toggleTheme}
+                            checkedChildren="Dark"
+                            unCheckedChildren="Light"
+                        />
+                    </Space>
+                </div>
+            </div>
 
             <Search />
             <div className="list-layout">

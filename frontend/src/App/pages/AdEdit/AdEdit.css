@@ -1,5 +1,8 @@
 .edit-main {
-    margin: 32px;
+    min-height: 100vh;
+    height: 100%;
+    padding: 32px;
+    background-color: var(--color-main-bg);
 }
 
 .edit-block {
@@ -56,14 +59,14 @@
 }
 
 .ai-btn-secondary {
-    background: rgba(249, 241, 230, 1);
+    background: var(--color-light-yellow);
     border-color: transparent;
     color: rgba(255, 169, 64, 1);
 }
 
 .ai-btn-text {
     width: 175px;
-    background: rgba(249, 241, 230, 1);
+    background: var(--color-light-yellow);
     border-color: transparent;
     color: rgba(255, 169, 64, 1);
 }

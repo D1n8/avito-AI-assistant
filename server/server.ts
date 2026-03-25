@@ -176,11 +176,11 @@ fastify.put<ItemUpdateRequest>('/items/:id', (request, reply) => {
 
 const port = 8080;
 
-fastify.listen({ port }, function (err, _address) {
+fastify.listen({ port, host: '0.0.0.0' }, function (err, address) {
   if (err) {
     fastify.log.error(err);
     process.exit(1);
   }
 
-  fastify.log.debug(`Server is listening on port ${port}`);
+  fastify.log.info(`Server is listening on ${address}`);
 });

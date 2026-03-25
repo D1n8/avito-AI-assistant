@@ -33,8 +33,7 @@ const App = observer(() => {
               hoverBg: inputColors.bg,
               colorBgContainer: inputColors.bg,
               colorText: inputColors.text,
-              colorTextPlaceholder: inputColors.placeholder,
-              colorBorder: "transparent"
+              colorTextPlaceholder: inputColors.placeholder
             },
             Select: {
               colorBgContainer: inputColors.bg,

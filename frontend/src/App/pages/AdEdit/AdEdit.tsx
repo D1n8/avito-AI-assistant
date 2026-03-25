@@ -1,4 +1,4 @@
-import { Button, Input, Select, App, Skeleton, Typography } from 'antd';
+import { Button, Input, Select, App, Typography } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
@@ -11,6 +11,7 @@ import CharInput from './components/CharInput';
 import CharSelect from './components/CharSelect';
 import BubbleModal from './components/BubbleModal';
 import type { AiStatus } from 'shared/types';
+import SkeletonAdDetail from './components/SkeletonAdEdit';
 
 const { TextArea } = Input
 const { Text } = Typography
@@ -93,7 +94,9 @@ const AdEdit = observer(() => {
         }
     };
 
-    if (itemStore.meta === Meta.Loading || !itemEditStore.formData.id) return <Skeleton active />
+    if (itemStore.meta === Meta.Loading || !itemEditStore.formData.id) {
+        return (<SkeletonAdDetail />)
+    }
 
     const { formData } = itemEditStore
     const isSaveDisabled = !formData.title || !formData.price || formData.price <= 0

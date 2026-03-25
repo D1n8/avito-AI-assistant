@@ -12,6 +12,7 @@ import Charateristic from "./components/Characteristic";
 import { routes } from "config/routes";
 import { formatDate } from "utils/index";
 import RevisionBanner from "./components/RevisionBanner";
+import SkeletonAdDetail from "./components/SkeletonAdDetail";
 
 const AdDetail = observer(() => {
     const store = useLocalStore(() => new ItemStore())
@@ -44,7 +45,10 @@ const AdDetail = observer(() => {
         return missing
     }, [item])
 
-    if (store.meta === Meta.Loading) return <div>Loading...</div>
+    if (store.meta === Meta.Loading) {
+        return (<SkeletonAdDetail />);
+    }
+
     if (!item) return null
 
     const missingFields = getMissingFields()

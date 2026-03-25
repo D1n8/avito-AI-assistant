@@ -1,0 +1,65 @@
+.filters-container {
+    width: 256px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.filters-card {
+    background: var(--color-default);
+    border-radius: 12px;
+    padding: 20px 16px;
+}
+
+.filters-title {
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.filters-collapse .ant-collapse-body {
+    padding: 0 0 10px 0 !important;
+}
+
+.filters-collapse .ant-collapse-header {
+    padding: 0 0 10px 0 !important;
+    font-size: 14px;
+}
+
+.filters-collapse .ant-collapse {
+    padding: 0 0 12px 0 !important;
+}
+
+.checkbox-group {
+    width: 100%;
+}
+
+.checkbox-group .ant-checkbox-wrapper {
+    font-size: 14px;
+}
+
+.revision-filter {
+    border-top: 1px solid rgba(240, 240, 240, 1);
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.revision-label {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    max-width: 180px;
+}
+
+.reset-button {
+    height: 40px;
+    background: var(--color-default);
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--color-subtext);
+}

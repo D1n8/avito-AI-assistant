@@ -1,0 +1,106 @@
+.edit-main {
+    min-height: 100vh;
+    height: 100%;
+    padding: 32px;
+    background-color: var(--color-main-bg);
+}
+
+.edit-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-block: 18px;
+    border-bottom: 1px solid rgba(240, 240, 240, 1);
+}
+
+.edit-label {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.no-border{
+    border: none;
+}
+
+.characters-input:not(:last-child) {
+    margin-bottom: 12px;
+}
+
+.edit-descr {
+    border: none
+}
+
+.descr-input-container {
+    max-width: 942px;
+}
+
+.edit-btns-container {
+    margin-top: 16px;
+    display: flex;
+    gap: 10px;
+}
+
+.char-grid{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.mandatory::before {
+    content: '*';
+    color: #ff4d4f;
+    margin-right: 4px;
+}
+
+.ai-btn-secondary {
+    background: var(--color-light-yellow);
+    border-color: transparent;
+    color: rgba(255, 169, 64, 1);
+}
+
+.ai-btn-text {
+    width: 175px;
+    background: var(--color-light-yellow);
+    border-color: transparent;
+    color: rgba(255, 169, 64, 1);
+}
+
+.ai-suggestion {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #f6ffed;
+    border: 1px solid #b7eb8f;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.ai-suggestion-box {
+    margin-top: 12px;
+    padding: 16px;
+    background: #fafafa;
+    border: 1px dashed #d9d9d9;
+    border-radius: 8px;
+}
+
+.ai-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.ai-btn-active {
+    background: rgba(249, 241, 230, 1) !important;
+    color: rgba(255, 169, 64, 1) !important;
+    border: none !important;
+}
+
+.price-container {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
